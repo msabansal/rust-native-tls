@@ -156,6 +156,8 @@ pub struct Identity {
     chain: Vec<X509>,
 }
 
+pub type RawType = (PKey<Private>, X509, Vec<X509>);
+
 impl Identity {
     pub fn from_pkcs12(buf: &[u8], pass: &str) -> Result<Identity, Error> {
         let pkcs12 = Pkcs12::from_der(buf)?;
@@ -180,6 +182,14 @@ impl Identity {
         let cert = cert_chain.next().ok_or(Error::EmptyChain)?;
         let chain = cert_chain.collect();
         Ok(Identity { pkey, cert, chain })
+    }
+
+    pub fn from_raw(context: RawType) -> Identity {
+        Identity {
+            pkey: context.0,
+            cert: context.1,
+            chain: context.2,
+        }
     }
 }
 
